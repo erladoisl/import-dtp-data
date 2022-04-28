@@ -2,14 +2,16 @@ import requests
 import zipfile
 import json
 from io import BytesIO
-import daplib
-# Импортируем модуль daplib
+
+#import daplib 
+
 # словарь с двумя пунктами 
 global_dict = {}
 # globals = dict{}
 monthCounter = 0
-daplib.set_params_as_variables(global_dict)  # Создается процесс считывания параметров из параметров узла
+#daplib.set_params_as_variables(global_dict)  # Создается процесс считывания параметров из параметров узла
 
+global_dict = {"region": "Сабинский район", "startMonth": 1, "endMonth": 2, "year": 2021}
 
 REGIONS = {'Атнинский район': 92213, "Буинский район": 92218, "Сабинский район": 92252, "г. Казань": 92401}
 FIRST_REQUEST_URL = "http://stat.gibdd.ru/map/getDTPCardDataXML"
@@ -25,9 +27,7 @@ SECOND_REQUEST_URL = 'http://stat.gibdd.ru/getPDFbyId?data='
 
 # организация генерации дат
 def getFilesId(region: str, startMonth: float, endMonth: float,year: float):
-    data = {"data": '{"date":' +
-                        for i in range [global_dict["startMonth"], global_dict["endMonth"]]:
-                                ' [MONTHS:' {monthCounter += 1}'.'{global_dict["year"]}]' +
+    data = {"data": '{"date":[MONTHS:1.2021],' +
                         '"ParReg":"92",' +
                         '"order":{"type":"1","fieldName":"dat"},' +
                         f'"reg":"{REGIONS[region]}",' +
