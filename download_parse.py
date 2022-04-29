@@ -109,6 +109,8 @@ def get_files_id(region: str, start_date, end_date):  # добавил стартовую и коне
                     '"order":{"type":"1","fieldName":"dat"},' +
                     f'"reg":"{REGIONS[region]}",' +
                     '"ind":"1","st":"1","en":"7"}'}
+    
+    print(data)
 
     reqnomer = requests.post(FIRST_REQUEST_URL, data=json.dumps(data), headers={'Content-type': 'application/json'})
     result_of_first = reqnomer.json()
