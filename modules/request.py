@@ -6,6 +6,8 @@ from typing import List
 import requests
 import zipfile
 from io import BytesIO
+import os
+import json
 
 
 # ЗАДАЧА 42: нужно дополнить переменную REGIONS. Уточнить в чате, каким образом это нужно сделать
@@ -70,6 +72,10 @@ def get_files_id(startMonth: int, endMonth: int, year: int, region: str) -> int:
         <class 'int'>
     '''
     pass
+    # доделать возврат данных из функции get_file_id_data для подстановки в "params_for_post = {"data"...
+    params_for_post = {"data" = ""}
+    download_file_id = requests.post(GETTING_FILE_ID_URL, json= params_for_post)
+    # download_file_id.json() # преобразование в json-объект 
 
 
 def download_dtp_data_xml_file(file_id: int, region: str, folder: str = 'result') -> None:
@@ -84,6 +90,18 @@ def download_dtp_data_xml_file(file_id: int, region: str, folder: str = 'result'
         содержимое архива - файл с расширением xml
     '''
     pass
+    # get запрос
+    params_for_get = {"key":"file_id"}
+    file_ID_get = requests.get(DOWNLOAD_FILE_BY_ID_URL, params=params_for_get )
+    print(file_ID_get.url)
+    # представление ответа в байтовом виде в переменной "file_ID_open" 
+    # file_ID_open = file_ID_get.open(BytesIO(requests.content))
+    os.mkdir("folder")
+    # Извлечение  файла 
+    archive = 'file.zip'
+with zipfile.ZipFile(archive, 'r') as zip_file:
+    zip_file.extractall("folder")
+
 
 
 def get_tatarstan_dtp_data(startMonth: int, endMonth: int, year: int) -> None:
