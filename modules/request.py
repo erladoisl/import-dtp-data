@@ -20,7 +20,7 @@ GETTING_FILE_ID_URL = "http://stat.gibdd.ru/map/getDTPCardDataXML"
 DOWNLOAD_FILE_BY_ID_URL = 'http://stat.gibdd.ru/getPDFbyId?data='
 
 
-def get_months(startMonth: int, endMonth: int, year: int) -> List[str]:
+def get_months(start_month: int, end_month: int, year: int) -> List[str]:
     '''
         Возвращает список из строк: "MONTHS:{startMonth}.{year}", ... MONTHS:{endMonth}.{year}"
         
@@ -30,11 +30,24 @@ def get_months(startMonth: int, endMonth: int, year: int) -> List[str]:
         Если startMonth > endMonth, поменять значения местами
             
         >>> get_months(1, 4, 2021)
-        ["MONTHS:1.2021", "MONTHS:2.2021", "MONTHS:3.2021", "MONTHS:4.2021"]
+        ['MONTHS:1.2021', 'MONTHS:2.2021', 'MONTHS:3.2021', 'MONTHS:4.2021']
         >>> get_months(4, 12, 2021)
-        ["MONTHS:1.2021", "MONTHS:2.2021", "MONTHS:3.2021", "MONTHS:4.2021"]
+        ['MONTHS:4.2021', 'MONTHS:5.2021', 'MONTHS:6.2021', 'MONTHS:7.2021', 'MONTHS:8.2021', 'MONTHS:9.2021', 'MONTHS:10.2021', 'MONTHS:11.2021', 'MONTHS:12.2021']
     '''
-    pass
+    result_list = list()
+
+    if start_month > end_month:
+        start_month, end_month = end_month, start_month
+    if start_month < 1:
+        start_month = 1
+    if end_month > 12:
+        end_month = 12
+
+    for month in range(start_month, end_month + 1):
+        element = f"MONTHS:{month}.{year}"
+        result_list.append(element)
+
+    return result_list
 
 
 def get_file_id_data(startMonth: int, endMonth: int, year: int, region: str) -> str:
