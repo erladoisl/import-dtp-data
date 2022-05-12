@@ -75,10 +75,9 @@ def get_file_id_data(start_month: int, end_month: int, year: int, region: str) \
     return result_dict
 
 
-def get_files_id(star_month: int, end_month: int, year: int, region: str) -> int:
+def get_files_id(start_month: int, end_month: int, year: int, region: str) -> int:
     '''
         Возвращает ид документа, который нужно скачать
-    
         Сделать post запрос, используя библиотеку requests:
         по адресу GETTING_FILE_ID_URL
         в теле запроса data установить значение которое, вернула ф-я get_file_id_data
@@ -88,7 +87,13 @@ def get_files_id(star_month: int, end_month: int, year: int, region: str) -> int
         >>> type(get_files_id(1, 2, 2021, 'Атнинский район'))
         <class 'int'>
     '''
-    pass
+    reqnomer = requests.post(FIRST_REQUEST_URL, data=json.dumps(data), headers={'Content-type': 'application/json'})
+    result_of_first = reqnomer.json()
+    result_of_first["data"] = int(result_of_first["data"])
+    return int(result_of_first["data"])
+
+
+
 
 
 def download_dtp_data_xml_file(file_id: int, region: str, folder: str = 'result') -> None:
