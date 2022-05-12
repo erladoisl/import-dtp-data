@@ -33,7 +33,7 @@ def get_months(start_month: int, end_month: int, year: int) -> List[str]:
         >>> get_months(4, 12, 2021)
         ['MONTHS:4.2021', 'MONTHS:5.2021', 'MONTHS:6.2021', 'MONTHS:7.2021', 'MONTHS:8.2021', 'MONTHS:9.2021', 'MONTHS:10.2021', 'MONTHS:11.2021', 'MONTHS:12.2021']
     '''
-    result_list = list()
+    months = list()
 
     if start_month > end_month:
         start_month, end_month = end_month, start_month
@@ -42,15 +42,13 @@ def get_months(start_month: int, end_month: int, year: int) -> List[str]:
     if end_month > 12:
         end_month = 12
 
-    for month in range(start_month, end_month + 1):
-        element = f"MONTHS:{month}.{year}"
-        result_list.append(element)
+    months = [f"MONTHS:{month}.{year}" for month in range(start_month, end_month + 1)]
 
-    return result_list
+    return months
 
 
 def get_file_id_data(start_month: int, end_month: int, year: int, region: str) \
-        -> Dict[str, Union[str, List[str], Dict[str, str]]]:
+        -> str:
     '''
         Возвращает тело запроса для получения ид файла в виде словаря объекта
         
@@ -68,14 +66,17 @@ def get_file_id_data(start_month: int, end_month: int, year: int, region: str) \
         >>> get_file_id_data(6, 4, 2021, 'Буинский район')
         {'date': ['MONTHS:4.2021', 'MONTHS:5.2021', 'MONTHS:6.2021'], 'ParReg': '92', 'order': {'type': '1', 'fieldName': 'dat'}, 'reg': '92218', 'ind': '1', 'st': '1', 'en': '7'}
     '''
-    result_dict = {"date": "["+", ".join(get_months(start_month, end_month, year)) + "]", "ParReg": "92",
-                   "order": {"type": "1", "fieldName": "dat"},
-                   "reg": str(REGIONS[region]), "ind": "1", "st": "1", "en": "7"}
+    result_dict = '{"date":' + \
+                  f'{get_months(start_month, end_month, year)}, ' + \
+                  '"ParReg": "92", ' + \
+                  '"order": {"type": "1", "fieldName": "dat"},' + \
+                  f'"reg": {REGIONS[region]}, ' + \
+                  '"ind": "1", "st": "1", "en": "7"}'
 
-    return result_dict
+    return result_dict.replace('\'', '\"')
 
 
-def get_files_id(start_month: int, end_month: int, year: int, region: str) -> int:
+def get_files_id(start_month: int, end_month: int, year: int, region: str) -> str:
     '''
         Возвращает ид документа, который нужно скачать
         Сделать post запрос, используя библиотеку requests:
@@ -87,18 +88,15 @@ def get_files_id(start_month: int, end_month: int, year: int, region: str) -> in
         >>> type(get_files_id(1, 2, 2021, 'Атнинский район'))
         <class 'int'>
     '''
-    GETTING_FILE_ID_URL = "http://stat.gibdd.ru/map/getDTPCardDataXML"
+    data = get_file_id_data(start_month, end_month, year, region)
+    page = requests.post(GETTING_FILE_ID_URL, data=json.dumps({'data': data}),
+                         headers={'Content-type': 'application/json'})
+    file_id = page.json()
 
-    data = str(get_file_id_data(start_month, end_month, year, region)).replace("'", '"')
-    reqnomer = requests.post(GETTING_FILE_ID_URL, data=json.dumps({'data': data}),
-                             headers={'Content-type': 'application/json'})
-    result_of_first = reqnomer.json()
-    result_of_first["data"] = int(result_of_first["data"])
-
-    return result_of_first["data"]
+    return file_id["data"]
 
 
-def download_dtp_data_xml_file(file_id: int, region: str, folder: str = 'result') -> None:
+def download_dtp_data_xml_file(file_id: str, region: str, folder: str = 'result') -> None:
     '''
         Загрузка файлов по file_id
         
@@ -109,10 +107,13 @@ def download_dtp_data_xml_file(file_id: int, region: str, folder: str = 'result'
         С помощью библиотеки zipfile и метода BytesIO сохранить в папку с названием {folder}/{region}
         содержимое архива - файл с расширением xml
     '''
-    pass
+    page = requests.get(DOWNLOAD_FILE_BY_ID_URL + file_id)
+    xml_file = zipfile.ZipFile(BytesIO(page.content))
+    address = f'{folder}/{region}'
+    xml_file.extractall(address)
 
 
-def get_tatarstan_dtp_data(startMonth: int, endMonth: int, year: int) -> None:
+def get_tatarstan_dtp_data(start_month: int, end_month: int, year: int) -> None:
     '''
         Получение файлов xml с данными о ДТП для всех районов Татарстана
         
@@ -125,4 +126,10 @@ def get_tatarstan_dtp_data(startMonth: int, endMonth: int, year: int) -> None:
                 file_id = id файла, полученным в предыдущем пункте,
                 region = текущий ключ                
     '''
-    pass
+    for region_name, region_id in REGIONS.items():
+        file_id = get_files_id(start_month, end_month, year, region_name)
+        download_dtp_data_xml_file(file_id, region_name)
+
+
+if __name__ == "__main__":
+    get_tatarstan_dtp_data(1, 2, 2021)
