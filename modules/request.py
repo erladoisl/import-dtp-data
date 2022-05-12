@@ -9,7 +9,6 @@ from io import BytesIO
 import os
 import json
 
-
 # ЗАДАЧА 42: нужно дополнить переменную REGIONS. Уточнить в чате, каким образом это нужно сделать
 REGIONS = {'Атнинский район': 92213, "Буинский район": 92218, "Сабинский район": 92252}
 
@@ -50,7 +49,7 @@ def get_months(start_month: int, end_month: int, year: int) -> List[str]:
     return result_list
 
 
-def get_file_id_data(startMonth: int, endMonth: int, year: int, region: str) -> str:
+def get_file_id_data(start_month: int, end_month: int, year: int, region: str) -> str:
     '''
         Возвращает тело запроса для получения ид файла в виде json объекта
         
@@ -68,8 +67,10 @@ def get_file_id_data(startMonth: int, endMonth: int, year: int, region: str) -> 
         >>> get_file_id_data(6, 4, 2021, 'Буинский район')
         {'date': ['MONTHS:4.2021', 'MONTHS:5.2021', 'MONTHS:6.2021'], 'ParReg': '92', 'order': {'type': '1', 'fieldName': 'dat'}, 'reg': '92218', 'ind': '1', 'st': '1', 'en': '7'}
     '''
-    pass
-
+    result_dict = {'date': get_months(start_month, end_month, year), "ParReg": "92",
+                   "order": {"type": "1", "fieldName": "dat"},
+                   "reg": str(REGIONS[region]), "ind": "1", "st": "1", "en": "7"}
+    return result_dict
 
 def get_files_id(startMonth: int, endMonth: int, year: int, region: str) -> int:
     '''
@@ -85,10 +86,7 @@ def get_files_id(startMonth: int, endMonth: int, year: int, region: str) -> int:
         <class 'int'>
     '''
     pass
-    # доделать возврат данных из функции get_file_id_data для подстановки в "params_for_post = {"data"...
-    params_for_post = {"data" = ""}
-    download_file_id = requests.post(GETTING_FILE_ID_URL, json= params_for_post)
-    # download_file_id.json() # преобразование в json-объект 
+
 
 
 def download_dtp_data_xml_file(file_id: int, region: str, folder: str = 'result') -> None:
@@ -103,17 +101,8 @@ def download_dtp_data_xml_file(file_id: int, region: str, folder: str = 'result'
         содержимое архива - файл с расширением xml
     '''
     pass
-    # get запрос
-    params_for_get = {"key":"file_id"}
-    file_ID_get = requests.get(DOWNLOAD_FILE_BY_ID_URL, params=params_for_get )
-    print(file_ID_get.url)
-    # представление ответа в байтовом виде в переменной "file_ID_open" 
-    # file_ID_open = file_ID_get.open(BytesIO(requests.content))
-    os.mkdir("folder")
-    # Извлечение  файла 
-    archive = 'file.zip'
-with zipfile.ZipFile(archive, 'r') as zip_file:
-    zip_file.extractall("folder")
+
+
 
 
 
