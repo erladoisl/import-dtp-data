@@ -50,7 +50,7 @@ def get_months(start_month: int, end_month: int, year: int) -> List[str]:
 
 
 def get_file_id_data(start_month: int, end_month: int, year: int, region: str) \
-        -> Dict[str:Union[str, List[str], Dict[str:str]]]:
+        -> Dict[str, Union[str, List[str], Dict[str, str]]]:
     '''
         Возвращает тело запроса для получения ид файла в виде словаря объекта
         
@@ -68,7 +68,7 @@ def get_file_id_data(start_month: int, end_month: int, year: int, region: str) \
         >>> get_file_id_data(6, 4, 2021, 'Буинский район')
         {'date': ['MONTHS:4.2021', 'MONTHS:5.2021', 'MONTHS:6.2021'], 'ParReg': '92', 'order': {'type': '1', 'fieldName': 'dat'}, 'reg': '92218', 'ind': '1', 'st': '1', 'en': '7'}
     '''
-    result_dict = {'date': get_months(start_month, end_month, year), "ParReg": "92",
+    result_dict = {"date": "["+", ".join(get_months(start_month, end_month, year)) + "]", "ParReg": "92",
                    "order": {"type": "1", "fieldName": "dat"},
                    "reg": str(REGIONS[region]), "ind": "1", "st": "1", "en": "7"}
 
@@ -87,13 +87,15 @@ def get_files_id(start_month: int, end_month: int, year: int, region: str) -> in
         >>> type(get_files_id(1, 2, 2021, 'Атнинский район'))
         <class 'int'>
     '''
-    reqnomer = requests.post(FIRST_REQUEST_URL, data=json.dumps(data), headers={'Content-type': 'application/json'})
+    GETTING_FILE_ID_URL = "http://stat.gibdd.ru/map/getDTPCardDataXML"
+
+    data = str(get_file_id_data(start_month, end_month, year, region)).replace("'", '"')
+    reqnomer = requests.post(GETTING_FILE_ID_URL, data=json.dumps({'data': data}),
+                             headers={'Content-type': 'application/json'})
     result_of_first = reqnomer.json()
     result_of_first["data"] = int(result_of_first["data"])
-    return int(result_of_first["data"])
 
-
-
+    return result_of_first["data"]
 
 
 def download_dtp_data_xml_file(file_id: int, region: str, folder: str = 'result') -> None:
