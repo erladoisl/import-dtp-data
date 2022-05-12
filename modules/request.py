@@ -2,7 +2,7 @@
 # в котором информация с карточек ДТП по всему татарстану
 
 
-from typing import List
+from typing import List, Dict, Union
 import requests
 import zipfile
 from io import BytesIO
@@ -49,9 +49,10 @@ def get_months(start_month: int, end_month: int, year: int) -> List[str]:
     return result_list
 
 
-def get_file_id_data(start_month: int, end_month: int, year: int, region: str) -> str:
+def get_file_id_data(start_month: int, end_month: int, year: int, region: str) \
+        -> Dict[str:Union[str, List[str], Dict[str:str]]]:
     '''
-        Возвращает тело запроса для получения ид файла в виде json объекта
+        Возвращает тело запроса для получения ид файла в виде словаря объекта
         
         Тело запроса сформировать в виде словаря:
         {"date": ["MONTHS:1.2021", "MONTHS:2.2021", "MONTHS:3.2021", "MONTHS:4.2021", "MONTHS:5.2021", "MONTHS:6.2021", "MONTHS:7.2021", "MONTHS:8.2021", "MONTHS:9.2021", "MONTHS:10.2021", "MONTHS:11.2021", "MONTHS:12.2021"],
@@ -70,9 +71,11 @@ def get_file_id_data(start_month: int, end_month: int, year: int, region: str) -
     result_dict = {'date': get_months(start_month, end_month, year), "ParReg": "92",
                    "order": {"type": "1", "fieldName": "dat"},
                    "reg": str(REGIONS[region]), "ind": "1", "st": "1", "en": "7"}
+
     return result_dict
 
-def get_files_id(startMonth: int, endMonth: int, year: int, region: str) -> int:
+
+def get_files_id(star_month: int, end_month: int, year: int, region: str) -> int:
     '''
         Возвращает ид документа, который нужно скачать
     
@@ -88,7 +91,6 @@ def get_files_id(startMonth: int, endMonth: int, year: int, region: str) -> int:
     pass
 
 
-
 def download_dtp_data_xml_file(file_id: int, region: str, folder: str = 'result') -> None:
     '''
         Загрузка файлов по file_id
@@ -101,9 +103,6 @@ def download_dtp_data_xml_file(file_id: int, region: str, folder: str = 'result'
         содержимое архива - файл с расширением xml
     '''
     pass
-
-
-
 
 
 def get_tatarstan_dtp_data(startMonth: int, endMonth: int, year: int) -> None:
