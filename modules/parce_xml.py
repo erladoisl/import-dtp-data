@@ -31,26 +31,25 @@ MULTIPLE_VALUES = ['OBJ_DTP', 'ndu']  # те, что несколько раз �
 # ЗАДАЧА 42: упростить ф-ю read_xml, разбить на подфункции
 # определить типы входных и исходящих аргументов
 def read_xml(xml, dtp_data):
-    dict_for_multiple_values = dict(zip(MULTIPLE_VALUES, [0] * len(
-        MULTIPLE_VALUES)))  # {'OBJ_DTP':0 , 'ndu':0} это для повторяющихся значений, например OBJ_DTP1,OBJ_DTP2
-    for child in xml:  # проходим по всем детям
-        if len(child):  # если у ребенка есть ребенок
-            if child.tag == "tab":  # так еще и с тэгом таб
-                for key, value in dtp_data.items():  # заполняем все ячейки " ", т.к. некоторые тэги могут не встретится
-                    dtp_data[key].append("")
-            read_xml(child, dtp_data)  # проходим по его детям
-        else:  # у ребенка нет детей
-            if child.tag in TAG_NAMES:  # если таг тот, который мы ищем
-                if child.tag in MULTIPLE_VALUES:  # если он один из тех, кто встречается несколько раз в одном ребенке
-                    dict_for_multiple_values[
-                        child.tag] += 1  # увеличиваем на 1 цифру, которую мы ему припишем справа(т.к. их несколько)
-                    count = dict_for_multiple_values[
-                        child.tag]  # цифра детей, но еще бэз тэга (сделал так, чтобы код снизу получше читался)
-                    dtp_data[TRANSLATION[f'{child.tag}{count}']][
-                        -1] = child.text  # приписываем ему справа цифру, который он по счету
-                else:
-                    dtp_data[TRANSLATION[child.tag]][
-                        -1] = child.text  # если дети не из MULTIPLE_VALUES, меняем пустой текст на текст детей
+    multiple_values_dict = dict(zip(MULTIPLE_VALUES, [0] * len(MULTIPLE_VALUES)))
+    for child in xml:
+        if len(child) and child.tag == "tab":
+            for key, value in dtp_data.items():
+                dtp_data[key].append("")
+            read_xml(child, dtp_data)
+        else:
+            if child.tag in TAG_NAMES:
+                add_to_dtp_data(dtp_data, multiple_values_dict, child.tag, child.text)
+
+
+def add_to_dtp_data(dtp_data, mul_val_dict, tag, text):
+    if tag in MULTIPLE_VALUES:
+        mul_val_dict[tag] += 1
+        count = mul_val_dict[tag]
+        dtp_data[TRANSLATION[f'{tag}{count}']][-1] = text
+    else:
+        dtp_data[TRANSLATION[tag]][-1] = text
+
 
 
 def get_tree(district: str) -> ET.Element:
