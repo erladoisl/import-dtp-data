@@ -30,7 +30,7 @@ MULTIPLE_VALUES = ['OBJ_DTP', 'ndu']  # те, что несколько раз �
 
 # ЗАДАЧА 42: упростить ф-ю read_xml, разбить на подфункции
 # определить типы входных и исходящих аргументов
-def read_xml(xml, dtp_data):
+def read_xml(xml: ET.Element, dtp_data: Dict[str, List[str]]) -> None:
     multiple_values_dict = dict(zip(MULTIPLE_VALUES, [0] * len(MULTIPLE_VALUES)))
     for child in xml:
         if len(child) and child.tag == "tab":
@@ -42,7 +42,7 @@ def read_xml(xml, dtp_data):
                 add_to_dtp_data(dtp_data, multiple_values_dict, child.tag, child.text)
 
 
-def add_to_dtp_data(dtp_data, mul_val_dict, tag, text):
+def add_to_dtp_data(dtp_data: Dict[str, List[str]], mul_val_dict:Dict[str, int], tag: str, text: str) -> None:
     if tag in MULTIPLE_VALUES:
         mul_val_dict[tag] += 1
         count = mul_val_dict[tag]
