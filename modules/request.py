@@ -140,11 +140,28 @@ def get_tatarstan_dtp_data(start_month: int, end_month: int, year: int, region: 
 
 # https://pythoner.name/walk - библиотека для этой функции
 def finder_to_xml_name(): # функция для помещения в лист всех названий файлов( для передачи в узел как входящий параметр)
-    names = os.listdir(os.getcwd('./request'))
+    start_file_name='Список карточек ДТП.xml'
+    path = 'test' #тестовая папка
+    names =[]
+    names_of_all_files = [] #Список со всеми названиями файлов
+    names = sorted(os.listdir(path)) # Сортировка директорий
+    print('Сортирую')
+    #print(names)
     for name in names:
-        fullname = os.path.join(os.getcwd(), name)
-        if os.path.isfile(fullname):
-            os.rename('Список карточек ДТП.xml','{names}.xml')
+        ulu=os.path.join(os.getcwd())
+        #print('ULU:' + ulu)
+        # fullname = os.path.join(os.getcwd(), name)
+        fullname = (os.path.join(os.getcwd()) + "\\test\\" + name) #Только для тестовой папки
+        #print(fullname)
+        #print(os.listdir(fullname))
+        if start_file_name in os.listdir(fullname):
+            print('проверка прошла')
+            file_oldname = os.path.join(fullname, "Список карточек ДТП.xml")
+            file_newname_newfile = os.path.join(fullname, name + ".xml")
+            os.rename(file_oldname, file_newname_newfile)
+            print('Меняю названия')
+            names_of_all_files.insert(0,name + ".xml")
+    print(names_of_all_files)
 
 if __name__ == "__main__":
      get_tatarstan_dtp_data(1, 2, 2021)
